@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/Laelapa/CompanyRegistry/auth/tokenauthority"
@@ -25,7 +26,14 @@ func New(
 ) *App {
 	return &App{
 		server: &http.Server{
-			Addr:
-		}
+			Addr:              fmt.Sprintf(":%s", serverConfig.Port),
+			Handler:           newMux(serverConfig.StaticDir, logger, queries, tokenAuthority, kafkaClient),
+			ReadHeaderTimeout: serverConfig.Timeouts.ReadHeaderTimeout,
+			ReadTimeout:       serverConfig.Timeouts.ReadTimeout,
+			WriteTimeout:      serverConfig.Timeouts.WriteTimeout,
+			IdleTimeout:       serverConfig.Timeouts.IdleTimeout,
+		},
+		serverConfig: serverConfig,
+		logger:       logger,
 	}
 }

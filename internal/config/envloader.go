@@ -18,6 +18,14 @@ type ServerConfig struct {
 	Port            string
 	ShutdownTimeout time.Duration
 	StaticDir       string
+	Timeouts        ServerTimeoutsConfig
+}
+
+type ServerTimeoutsConfig struct {
+	ReadHeaderTimeout time.Duration
+	ReadTimeout       time.Duration
+	WriteTimeout      time.Duration
+	IdleTimeout       time.Duration
 }
 
 type DatabaseConfig struct {
@@ -51,6 +59,11 @@ const (
 	// Server
 	defaultShutdownTimeout = 5 * time.Second
 	defaultStaticDir       = "./static"
+	// Server Timeouts
+	defaultReadHeaderTimeout = 10 * time.Second  // For slow headers
+	defaultReadTimeout       = 30 * time.Second  // For slow requests
+	defaultWriteTimeout      = 30 * time.Second  // For preventing clients from keeping connections open
+	defaultIdleTimeout       = 120 * time.Second // For closing idle connections
 
 	// Auth
 	defaultMaxHeaderLength = 1024
@@ -81,17 +94,16 @@ func Load() (*Config, error) {
 
 	cfg := &Config{
 		Environment: getEnvWithFallbackAndValidOptions("ENVIRONMENT", defaultEnv, validEnvs...),
-		// Environment: getEnvWithFallbackAndCustomValidation(
-		// 	"ENVIRONMENT",
-		// 	defaultEnv,
-		// 	func(val string) bool {
-		// 		return slices.Contains(validEnvs, val)
-		// 	},
-		// ),
 		Server: ServerConfig{
 			Port:            getEnvWithFallbackAndCustomValidation("SERVER_PORT", "8080", validatePort),
 			ShutdownTimeout: getEnvDurationWithFallback("SERVER_SHUTDOWN_TIMEOUT", defaultShutdownTimeout),
 			StaticDir:       getEnvWithFallback("SERVER_STATIC_DIR", defaultStaticDir),
+			Timeouts: ServerTimeoutsConfig{
+				ReadHeaderTimeout: getEnvDurationWithFallback("SERVER_READ_HEADER_TIMEOUT", defaultReadHeaderTimeout),
+				ReadTimeout:       getEnvDurationWithFallback("SERVER_READ_TIMEOUT", defaultReadTimeout),
+				WriteTimeout:      getEnvDurationWithFallback("SERVER_WRITE_TIMEOUT", defaultWriteTimeout),
+				IdleTimeout:       getEnvDurationWithFallback("SERVER_IDLE_TIMEOUT", defaultIdleTimeout),
+			},
 		},
 		DB: DatabaseConfig{
 			URL: dbURL,
