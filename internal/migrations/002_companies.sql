@@ -6,9 +6,16 @@ CREATE TABLE companies (
     employee_count INT NOT NULL,
     registered BOOLEAN NOT NULL,
     company_type VARCHAR(20) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by UUID REFERENCES users(ID),
+    updated_by UUID REFERENCES users(ID),
     CONSTRAINT company_type_check CHECK (
         company_type IN (
-            'Corporation', 'NonProfit', 'Cooperative', 'SoleProprietorship'
+            'Corporation',
+            'NonProfit',
+            'Cooperative',
+            'SoleProprietorship'
         )
     )
 );
