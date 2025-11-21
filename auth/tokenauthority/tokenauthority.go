@@ -1,14 +1,30 @@
 package tokenauthority
 
-import "github.com/Laelapa/CompanyRegistry/internal/config"
+import (
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
+
+	"github.com/Laelapa/CompanyRegistry/internal/config"
+)
 
 type TokenAuthority struct {
 	cfg *config.AuthConfig
 }
 
 func New(cfg *config.AuthConfig) *TokenAuthority {
-	t := &TokenAuthority{
+	return &TokenAuthority{
 		cfg: cfg,
 	}
-	return t
+}
+
+func (t *TokenAuthority) IssueJWT(userID uuid.UUID) (string, error) {
+	now := time.Now().UTC()
+	claims := jwt.RegisteredClaims{
+		Issuer:    t.cfg.JwtIssuer,
+		Subject:   userID.String(),
+		IssuedAt:  jwt.NewNumericDate(now),
+		ExpiresAt: jwt.NewNumericDate(now.Add(t.cfg.JwtLifetime)),
+	}
 }
