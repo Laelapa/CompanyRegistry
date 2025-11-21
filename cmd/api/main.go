@@ -7,6 +7,8 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/jackc/pgx/v5/pgxpool"
+
 	"github.com/Laelapa/CompanyRegistry/internal/config"
 	"github.com/Laelapa/CompanyRegistry/logging"
 )
@@ -35,6 +37,19 @@ func run() error {
 			log.Printf("WARNING: failed to sync logger: %v", syncErr)
 		}
 	}()
+
+	dbPool, err := pgxpool.New(ctx, cfg.DB.URL)
+	if err != nil {
+		return fmt.Errorf("failed to connect to database: %w", err)
+	}
+	defer dbPool.Close()
+	logger.Info("Database pool initialized")
+
+	// Verify db connection
+	if dbPingErr := dbPool.Ping(ctx); dbPingErr != nil {
+		return fmt.Errorf("failed to ping database: %w", dbPingErr)
+	}
+	logger.Info("Database connection verified")
 
 	return nil
 }
