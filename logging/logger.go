@@ -1,8 +1,9 @@
 package logging
 
 import (
-	"github.com/Laelapa/CompanyRegistry/internal/config"
 	"go.uber.org/zap"
+
+	"github.com/Laelapa/CompanyRegistry/internal/config"
 )
 
 type Logger struct {
