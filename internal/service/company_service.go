@@ -1,0 +1,25 @@
+package service
+
+import (
+	"context"
+
+	"github.com/Laelapa/CompanyRegistry/internal/domain"
+
+	"github.com/google/uuid"
+)
+
+type CompanyRepository interface {
+	Create(ctx context.Context, c *domain.Company) (*domain.Company, error)
+	GetByID(ctx context.Context, id uuid.UUID) (*domain.Company, error)
+	GetByName(ctx context.Context, name string) (*domain.Company, error)
+	Update(ctx context.Context, c *domain.Company) (*domain.Company, error)
+	Delete(ctx context.Context, id uuid.UUID) error
+}
+
+type CompanyService struct {
+	repo CompanyRepository
+}
+
+func NewCompanyService(repo CompanyRepository) *CompanyService {
+	return &CompanyService{repo: repo}
+}
