@@ -7,7 +7,7 @@ CREATE TABLE companies (
     registered BOOLEAN NOT NULL,
     company_type VARCHAR(20) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP,
     created_by UUID REFERENCES users(ID),
     updated_by UUID REFERENCES users(ID),
     CONSTRAINT company_type_check CHECK (
@@ -15,7 +15,7 @@ CREATE TABLE companies (
             'Corporation',
             'NonProfit',
             'Cooperative',
-            'SoleProprietorship'
+            'Sole Proprietorship'
         )
     )
 );

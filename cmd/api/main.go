@@ -15,6 +15,8 @@ import (
 	"github.com/Laelapa/CompanyRegistry/internal/app"
 	"github.com/Laelapa/CompanyRegistry/internal/config"
 	"github.com/Laelapa/CompanyRegistry/internal/repository"
+	"github.com/Laelapa/CompanyRegistry/internal/repository/adapters"
+	"github.com/Laelapa/CompanyRegistry/internal/service"
 	"github.com/Laelapa/CompanyRegistry/logging"
 )
 
@@ -43,6 +45,8 @@ func run() error {
 		}
 	}()
 
+	tokenAuthority := tokenauthority.New(&cfg.Auth)
+
 	dbPool, err := pgxpool.New(ctx, cfg.DB.URL)
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %w", err)
@@ -58,8 +62,16 @@ func run() error {
 	logger.Info("Database connection verified")
 
 	queries := repository.New(dbPool)
-
-	tokenAuthority := tokenauthority.New(&cfg.Auth)
+	service := &service.Service{
+		User: service.NewUserService(
+			adapters.NewPGUserRepoAdapter(queries),
+			tokenAuthority,
+		),
+		Company: service.NewCompanyService(
+			adapters.NewPGCompanyRepoAdapter(queries),
+			tokenAuthority,
+		),
+	}
 
 	var kafkaClient *kgo.Client // nil if Kafka not configured
 	kafkaBrokers := cfg.Kafka.Brokers
@@ -83,7 +95,7 @@ func run() error {
 	app := app.New(
 		&cfg.Server,
 		logger,
-		queries,
+		service,
 		tokenAuthority,
 		kafkaClient,
 	)

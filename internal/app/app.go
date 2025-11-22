@@ -8,9 +8,11 @@ import (
 
 	"github.com/Laelapa/CompanyRegistry/auth/tokenauthority"
 	"github.com/Laelapa/CompanyRegistry/internal/config"
-	"github.com/Laelapa/CompanyRegistry/internal/repository"
+	"github.com/Laelapa/CompanyRegistry/internal/middleware"
 	"github.com/Laelapa/CompanyRegistry/internal/routes"
+	"github.com/Laelapa/CompanyRegistry/internal/service"
 	"github.com/Laelapa/CompanyRegistry/logging"
+
 	"github.com/twmb/franz-go/pkg/kgo"
 	"go.uber.org/zap"
 )
@@ -24,7 +26,7 @@ type App struct {
 func New(
 	serverConfig *config.ServerConfig,
 	logger *logging.Logger,
-	queries *repository.Queries,
+	service *service.Service,
 	tokenAuthority *tokenauthority.TokenAuthority,
 	kafkaClient *kgo.Client,
 ) *App {
@@ -34,7 +36,7 @@ func New(
 			Handler: newMux(
 				serverConfig.StaticDir,
 				logger,
-				queries,
+				service,
 				tokenAuthority,
 				kafkaClient,
 			),
@@ -51,14 +53,14 @@ func New(
 func newMux(
 	staticDir string,
 	logger *logging.Logger,
-	queries *repository.Queries,
+	service *service.Service,
 	tokenAuthority *tokenauthority.TokenAuthority,
 	kafkaClient *kgo.Client,
 ) http.Handler {
 	mux := routes.Setup(
 		staticDir,
 		logger,
-		queries,
+		service,
 		tokenAuthority,
 		kafkaClient,
 	)
@@ -66,8 +68,7 @@ func newMux(
 }
 
 func attachBasicMiddleware(handler http.Handler, logger *logging.Logger) http.Handler {
-
-	// TODO: add middleware
+	handler = middleware.RequestLogger(handler, logger)
 
 	return handler
 }
@@ -91,7 +92,7 @@ func (app *App) LaunchServer(ctx context.Context) error {
 
 	select {
 	case err := <-errChan:
-		return fmt.Errorf("Server error: %w", err)
+		return fmt.Errorf("server error: %w", err)
 	case <-ctx.Done():
 		app.logger.Info("Shutting down HTTP server...")
 		app.ShutdownServer()
@@ -120,5 +121,4 @@ func (app *App) ShutdownServer() {
 		}
 	}
 	app.logger.Info("HTTP server shut down successfully")
-	return
 }
