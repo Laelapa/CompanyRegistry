@@ -3,10 +3,12 @@ package middleware
 import (
 	"net/http"
 
+	"go.uber.org/zap"
+
 	"github.com/Laelapa/CompanyRegistry/auth/tokenauthority"
 	"github.com/Laelapa/CompanyRegistry/logging"
+	"github.com/Laelapa/CompanyRegistry/util/ctxutils"
 	"github.com/Laelapa/CompanyRegistry/util/netutils"
-	"go.uber.org/zap"
 )
 
 func AuthenticateWithJWT(
@@ -15,7 +17,6 @@ func AuthenticateWithJWT(
 ) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 			// Check for Authorization header
 			authHeader := r.Header.Get("Authorization")
 			if authHeader == "" {
