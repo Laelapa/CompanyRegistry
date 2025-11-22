@@ -28,6 +28,8 @@ func StripPort(ipAddr string) string {
 	return host
 }
 
+// StripBearer extracts the token from a Bearer authorization header.
+// It returns an error if the header is not formatted properly.
 func StripBearer(authHeader string) (string, error) {
 	if len(authHeader) > 7 && authHeader[:7] == "Bearer " {
 		return authHeader[7:], nil
