@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/Laelapa/CompanyRegistry/auth/tokenauthority"
+	"github.com/Laelapa/CompanyRegistry/internal/middleware"
 	"github.com/Laelapa/CompanyRegistry/internal/repository"
 	"github.com/Laelapa/CompanyRegistry/internal/routes/handlers"
 	"github.com/Laelapa/CompanyRegistry/logging"
