@@ -8,6 +8,7 @@ import (
 	"os/signal"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/joho/godotenv"
 	"github.com/twmb/franz-go/pkg/kgo"
 	"go.uber.org/zap"
 
@@ -28,6 +29,7 @@ func main() {
 }
 
 func run() error {
+	_ = godotenv.Load()
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 

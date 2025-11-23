@@ -17,8 +17,8 @@ type Config struct {
 type ServerConfig struct {
 	Port            string
 	ShutdownTimeout time.Duration
-	StaticDir       string
-	Timeouts        ServerTimeoutsConfig
+	// StaticDir       string
+	Timeouts ServerTimeoutsConfig
 }
 
 type ServerTimeoutsConfig struct {
@@ -59,7 +59,7 @@ const (
 
 	// Server
 	defaultShutdownTimeout = 5 * time.Second
-	defaultStaticDir       = "./static"
+	// defaultStaticDir       = "./static"
 	// Server Timeouts
 	defaultReadHeaderTimeout = 10 * time.Second  // For slow headers
 	defaultReadTimeout       = 30 * time.Second  // For slow requests
@@ -98,7 +98,7 @@ func Load() (*Config, error) {
 		Server: ServerConfig{
 			Port:            getEnvWithFallbackAndCustomValidation("SERVER_PORT", "8080", validatePort),
 			ShutdownTimeout: getEnvDurationWithFallback("SERVER_SHUTDOWN_TIMEOUT", defaultShutdownTimeout),
-			StaticDir:       getEnvWithFallback("SERVER_STATIC_DIR", defaultStaticDir),
+			// StaticDir:       getEnvWithFallback("SERVER_STATIC_DIR", defaultStaticDir), // Disable for now
 			Timeouts: ServerTimeoutsConfig{
 				ReadHeaderTimeout: getEnvDurationWithFallback("SERVER_READ_HEADER_TIMEOUT", defaultReadHeaderTimeout),
 				ReadTimeout:       getEnvDurationWithFallback("SERVER_READ_TIMEOUT", defaultReadTimeout),

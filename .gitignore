@@ -24,8 +24,8 @@ bin/
 go.work
 go.work.sum
 
-# env file
-.env
+# env file - VERSIONED FOR DEMOING THE APPLICATION
+# .env
 
 # Local testing environment configurations
 docker-compose.yml
