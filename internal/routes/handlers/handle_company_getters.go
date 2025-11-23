@@ -23,7 +23,7 @@ func (h *Handler) HandleGetCompanyByName(w http.ResponseWriter, r *http.Request)
 
 	company, err := h.service.Company.GetByName(r.Context(), name)
 	if err != nil {
-		h.logger.Error("Failed to get company", append(h.logger.ReqFields(r), zap.Error(err))...)
+		h.logger.Info("Failed to get company", append(h.logger.ReqFields(r), zap.Error(err))...)
 		if errors.Is(err, domain.ErrNotFound) {
 			http.Error(w, "Company not found", http.StatusNotFound)
 			return

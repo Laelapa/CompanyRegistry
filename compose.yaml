@@ -22,20 +22,13 @@ services:
       - cr-network
 
   migrations:
-    image: golang:bookworm
-    container_name: plateops-migrations
-    working_dir: /app
-    volumes:
-      - ./internal/migrations:/app/migrations:ro
+    build:
+      context: .
+      dockerfile: Dockerfile.migrations
+    container_name: cr-migrations
     environment:
       GOOSE_DRIVER: ${GOOSE_DRIVER:-postgres}
       GOOSE_DBSTRING: postgres://${POSTGRES_USER:-cr}:${POSTGRES_PASSWORD:-cr_dev_password}@postgres:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-crdb}?sslmode=disable
-    command: >
-      sh -c "
-        echo 'Installing goose...' &&
-        go install github.com/pressly/goose/v3/cmd/goose@latest &&
-        goose -dir /app/migrations up
-      "
     depends_on:
       postgres:
         condition: service_healthy
@@ -75,7 +68,7 @@ services:
     networks:
       - cr-network
 
-  # TODO: topic food.updates should be env-ed   
+#TODO: Pull topic names from .env
   kafka-init:
     image: bitnamilegacy/kafka:latest
     container_name: cr-kafka-init
@@ -94,7 +87,7 @@ services:
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
-    container_name: plateops-kafka-ui
+    container_name: cr-kafka-ui
     environment:
       KAFKA_CLUSTERS_0_NAME: ${KAFKA_CLUSTER_NAME:-cr-cluster}
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
@@ -107,7 +100,7 @@ services:
     networks:
       - cr-network
 
-  plateops-api:
+  cr-api:
     build:
       context: .
       dockerfile: Dockerfile
