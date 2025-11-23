@@ -10,22 +10,22 @@ import (
 	"go.uber.org/zap"
 )
 
-type userSignupRequest struct {
+type UserSignupRequest struct {
 	Username string `json:"username" validate:"required,max=255,alphanum"`
 	Password string `json:"password" validate:"required,max=72"`
 }
 
-type userLoginRequest struct {
+type UserLoginRequest struct {
 	Username string `json:"username" validate:"required"`
 	Password string `json:"password" validate:"required"`
 }
 
-type authResponse struct {
+type AuthResponse struct {
 	AccessToken string `json:"access_token"`
 }
 
 func (h *Handler) HandleSignup(w http.ResponseWriter, r *http.Request) {
-	var rBody userSignupRequest
+	var rBody UserSignupRequest
 	h.logger.Info("Processing signup request", h.logger.ReqFields(r)...)
 
 	// Decode request body
@@ -62,7 +62,7 @@ func (h *Handler) HandleSignup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp := authResponse{AccessToken: accessToken}
+	resp := AuthResponse{AccessToken: accessToken}
 
 	respMarshalled, err := json.Marshal(resp)
 	if err != nil {
