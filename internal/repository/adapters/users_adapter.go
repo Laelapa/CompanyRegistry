@@ -7,6 +7,7 @@ import (
 	"github.com/Laelapa/CompanyRegistry/internal/domain"
 	"github.com/Laelapa/CompanyRegistry/internal/repository"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type PGUserRepoAdapter struct {
@@ -30,6 +31,10 @@ func (p *PGUserRepoAdapter) Create(ctx context.Context, u *domain.User) (*domain
 	}
 	dbUser, err := p.q.CreateUser(ctx, params)
 	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" { // pg:unique_violation
+			return nil, domain.ErrConflict
+		}
 		return nil, err
 	}
 
