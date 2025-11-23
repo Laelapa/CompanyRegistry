@@ -81,12 +81,12 @@ func (u *UserService) Login(ctx context.Context, username, password string) (sig
 	// Retrieve user by username
 	user, uErr := u.repo.GetByUsername(ctx, username)
 	if uErr != nil {
-		return "", errors.New("invalid credentials")
+		return "", domain.ErrBadCredentials
 	}
 
 	// Compare provided password with stored hash
 	if pErr := bcrypt.CompareHashAndPassword([]byte(*user.PasswordHash), []byte(password)); pErr != nil {
-		return "", errors.New("invalid credentials")
+		return "", domain.ErrBadCredentials
 	}
 
 	jwt, jErr := u.tokenAuthority.IssueJWT(*user.ID)
