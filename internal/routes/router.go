@@ -13,14 +13,14 @@ import (
 )
 
 func Setup(
-	staticDir string,
+	// staticDir string,
 	logger *logging.Logger,
 	service *service.Service,
 	tokenAuthority *tokenauthority.TokenAuthority,
 	kafkaClient *kgo.Client,
 ) *http.ServeMux {
 	mux := http.NewServeMux()
-	fileServer := http.StripPrefix("/static/", http.FileServer(http.Dir(staticDir)))
+	// fileServer := http.StripPrefix("/static/", http.FileServer(http.Dir(staticDir)))
 
 	h := handlers.New(logger, service, tokenAuthority, kafkaClient)
 
@@ -29,7 +29,7 @@ func Setup(
 		return middleware.AuthenticateWithJWT(tokenAuthority, logger)(http.HandlerFunc(handler))
 	}
 
-	mux.Handle("GET /static/", fileServer)
+	// mux.Handle("GET /static/", fileServer)
 	mux.HandleFunc("GET /openapi.json", h.HandleGetOpenAPI)
 	mux.HandleFunc("GET /docs", h.HandleSwaggerUI)
 

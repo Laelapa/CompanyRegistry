@@ -34,7 +34,7 @@ func New(
 		server: &http.Server{
 			Addr: fmt.Sprintf(":%s", serverConfig.Port),
 			Handler: newMux(
-				serverConfig.StaticDir,
+				// serverConfig.StaticDir,
 				logger,
 				service,
 				tokenAuthority,
@@ -51,14 +51,14 @@ func New(
 }
 
 func newMux(
-	staticDir string,
+	// staticDir string,
 	logger *logging.Logger,
 	service *service.Service,
 	tokenAuthority *tokenauthority.TokenAuthority,
 	kafkaClient *kgo.Client,
 ) http.Handler {
 	mux := routes.Setup(
-		staticDir,
+		// staticDir,
 		logger,
 		service,
 		tokenAuthority,
