@@ -23,12 +23,6 @@ func NewPGUserRepoAdapter(q *repository.Queries) *PGUserRepoAdapter {
 // If uniqueness constraints are violated, it returns domain.ErrConflict.
 // It propagates other errors from the database layer.
 func (p *PGUserRepoAdapter) Create(ctx context.Context, u *domain.User) (*domain.User, error) {
-	if u.Username == nil {
-		return nil, errors.New("username is required")
-	}
-	if u.PasswordHash == nil {
-		return nil, errors.New("password hash is required")
-	}
 	params := repository.CreateUserParams{
 		Username:     *u.Username,
 		PasswordHash: *u.PasswordHash,

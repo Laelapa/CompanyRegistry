@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/Laelapa/CompanyRegistry/auth/tokenauthority"
 	"github.com/Laelapa/CompanyRegistry/internal/domain"
@@ -34,6 +35,18 @@ func NewCompanyService(
 // Create creates a new company.
 // If uniqueness constraints are violated, it returns domain.ErrConflict.
 func (s *CompanyService) Create(ctx context.Context, c *domain.Company) (*domain.Company, error) {
+	if c.Name == nil {
+		return nil, fmt.Errorf("company name is required: %w", domain.ErrBadRequest)
+	}
+	if c.EmployeeCount == nil {
+		return nil, fmt.Errorf("employee count is required: %w", domain.ErrBadRequest)
+	}
+	if c.Registered == nil {
+		return nil, fmt.Errorf("registered status is required: %w", domain.ErrBadRequest)
+	}
+	if c.CompanyType == nil {
+		return nil, fmt.Errorf("company type is required: %w", domain.ErrBadRequest)
+	}
 	return s.repo.Create(ctx, c)
 }
 
@@ -41,5 +54,12 @@ func (s *CompanyService) Create(ctx context.Context, c *domain.Company) (*domain
 // If the company does not exist, it returns domain.ErrNotFound.
 // If uniqueness constraints are violated, it returns domain.ErrConflict.
 func (s *CompanyService) Update(ctx context.Context, c *domain.Company) (*domain.Company, error) {
+	if c.ID == nil {
+		return nil, fmt.Errorf("company ID is required: %w", domain.ErrBadRequest)
+	}
+	if c.UpdatedBy == nil {
+		return nil, fmt.Errorf("updated_by is required: %w", domain.ErrBadRequest)
+	}
+
 	return s.repo.Update(ctx, c)
 }

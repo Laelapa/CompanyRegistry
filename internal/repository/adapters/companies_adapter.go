@@ -23,19 +23,6 @@ func NewPGCompanyRepoAdapter(q *repository.Queries) *PGCompanyRepoAdapter {
 }
 
 func (p *PGCompanyRepoAdapter) Create(ctx context.Context, c *domain.Company) (*domain.Company, error) {
-	if c.Name == nil {
-		return nil, errors.New("company name is required")
-	}
-	if c.EmployeeCount == nil {
-		return nil, errors.New("employee count is required")
-	}
-	if c.Registered == nil {
-		return nil, errors.New("registered status is required")
-	}
-	if c.CompanyType == nil {
-		return nil, errors.New("company type is required")
-	}
-
 	params := repository.CreateCompanyParams{
 		Name:          *c.Name,
 		EmployeeCount: *c.EmployeeCount,
@@ -74,13 +61,6 @@ func (p *PGCompanyRepoAdapter) GetByName(ctx context.Context, name string) (*dom
 // It returns domain.ErrNotFound if it tries to update an non-existent entry.
 // It returns domain.ErrConflict if a unique constraint violation occurs.
 func (p *PGCompanyRepoAdapter) Update(ctx context.Context, c *domain.Company) (*domain.Company, error) {
-	if c.ID == nil {
-		return nil, errors.New("company ID is required")
-	}
-	if c.UpdatedBy == nil {
-		return nil, errors.New("updated_by is required")
-	}
-
 	// Handle nullable CompanyType
 	var ct pgtype.Text
 	if c.CompanyType == nil {

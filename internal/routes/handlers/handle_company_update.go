@@ -68,6 +68,8 @@ func (h *Handler) HandleUpdateCompany(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Company not found", http.StatusNotFound)
 		case errors.Is(err, domain.ErrConflict):
 			http.Error(w, "Conflict: Company name already exists", http.StatusConflict)
+		case errors.Is(err, domain.ErrBadRequest):
+			http.Error(w, "Bad request: Invalid update data", http.StatusBadRequest)
 		default:
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 		}

@@ -51,6 +51,8 @@ func (h *Handler) HandleCreateCompany(w http.ResponseWriter, r *http.Request) {
 		h.logger.Error("Failed to create company", append(h.logger.ReqFields(r), zap.Error(err))...)
 		if errors.Is(err, domain.ErrConflict) {
 			http.Error(w, "Conflict: Company already exists", http.StatusConflict)
+		} else if errors.Is(err, domain.ErrBadRequest) {
+			http.Error(w, "Bad request: Invalid company data", http.StatusBadRequest)
 		} else {
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 		}

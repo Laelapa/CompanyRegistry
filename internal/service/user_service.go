@@ -39,6 +39,12 @@ func (u *UserService) Register(
 	username,
 	password string,
 ) (signedJWT string, err error) {
+	if username == "" {
+		return "", fmt.Errorf("username is required: %w", domain.ErrBadCredentials)
+	}
+	if password == "" {
+		return "", fmt.Errorf("password is required: %w", domain.ErrBadCredentials)
+	}
 	// Hash the password
 	hashedPassword, pErr := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if pErr != nil {

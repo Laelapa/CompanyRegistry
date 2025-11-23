@@ -43,6 +43,8 @@ func (h *Handler) HandleSignup(w http.ResponseWriter, r *http.Request) {
 		)
 		if errors.Is(err, domain.ErrConflict) {
 			http.Error(w, "Conflict: User already exists", http.StatusConflict)
+		} else if errors.Is(err, domain.ErrBadCredentials) {
+			http.Error(w, "Bad request: Invalid credentials", http.StatusBadRequest)
 		} else {
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 		}
