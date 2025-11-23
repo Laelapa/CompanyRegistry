@@ -52,6 +52,9 @@ func (p *PGCompanyRepoAdapter) Create(ctx context.Context, c *domain.Company) (*
 func (p *PGCompanyRepoAdapter) GetByName(ctx context.Context, name string) (*domain.Company, error) {
 	dbCompany, err := p.q.GetCompanyByName(ctx, name)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, domain.ErrNotFound
+		}
 		return nil, err
 	}
 	return p.toDomainType(&dbCompany), nil

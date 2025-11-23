@@ -31,13 +31,13 @@ func Setup(
 
 	mux.Handle("GET /static/", fileServer)
 
-	// mux.HandleFunc("POST /api/v1/login", h.HandleLogin)
+	mux.HandleFunc("POST /api/v1/login", h.HandleLogin)
 	mux.HandleFunc("POST /api/v1/signup", h.HandleSignup)
 
-	// mux.Handle("GET /api/v1/company/{name}", h.HandleGetCompanyByName)
+	mux.HandleFunc("GET /api/v1/company/{name}", h.HandleGetCompanyByName)
 	mux.Handle("POST /api/v1/company", withAuth(h.HandleCreateCompany))
 	mux.Handle("PATCH /api/v1/company/{id}", withAuth(h.HandleUpdateCompany))
-	// mux.Handle("DELETE /api/v1/company/{id}", withAuth(h.HandleDeleteCompany))
+	mux.Handle("DELETE /api/v1/company/{id}", withAuth(h.HandleDeleteCompany))
 
 	return mux
 }

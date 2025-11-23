@@ -32,6 +32,12 @@ func NewCompanyService(
 	}
 }
 
+// GetByName retrieves a company by its name.
+// It returns domain.ErrNotFound if the company does not exist.
+func (s *CompanyService) GetByName(ctx context.Context, name string) (*domain.Company, error) {
+	return s.repo.GetByName(ctx, name)
+}
+
 // Create creates a new company.
 // If uniqueness constraints are violated, it returns domain.ErrConflict.
 func (s *CompanyService) Create(ctx context.Context, c *domain.Company) (*domain.Company, error) {
