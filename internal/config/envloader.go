@@ -121,8 +121,8 @@ func Load() (*Config, error) {
 				CompanyMutations string
 				UserMutations    string
 			}{
-				CompanyMutations: getEnvWithFallback("KAFKA_TOPIC_COMPANIES", "company-mutations"),
-				UserMutations:    getEnvWithFallback("KAFKA_TOPIC_USERS", "user-mutations"),
+				CompanyMutations: getEnvWithFallback("KAFKA_TOPIC_COMPANIES", "company.mutations"),
+				UserMutations:    getEnvWithFallback("KAFKA_TOPIC_USERS", "user.mutations"),
 			},
 		},
 		Logging: LoggingConfig{
