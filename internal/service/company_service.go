@@ -36,3 +36,10 @@ func NewCompanyService(
 func (s *CompanyService) Create(ctx context.Context, c *domain.Company) (*domain.Company, error) {
 	return s.repo.Create(ctx, c)
 }
+
+// Update updates an existing company.
+// If the company does not exist, it returns domain.ErrNotFound.
+// If uniqueness constraints are violated, it returns domain.ErrConflict.
+func (s *CompanyService) Update(ctx context.Context, c *domain.Company) (*domain.Company, error) {
+	return s.repo.Update(ctx, c)
+}

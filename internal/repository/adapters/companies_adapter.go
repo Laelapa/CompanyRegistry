@@ -9,6 +9,7 @@ import (
 	"github.com/Laelapa/CompanyRegistry/util/typeconvert"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -69,6 +70,9 @@ func (p *PGCompanyRepoAdapter) GetByName(ctx context.Context, name string) (*dom
 	return p.toDomainType(&dbCompany), nil
 }
 
+// Update updates an existing company record in the database with capability for partial update.
+// It returns domain.ErrNotFound if it tries to update an non-existent entry.
+// It returns domain.ErrConflict if a unique constraint violation occurs.
 func (p *PGCompanyRepoAdapter) Update(ctx context.Context, c *domain.Company) (*domain.Company, error) {
 	if c.ID == nil {
 		return nil, errors.New("company ID is required")
@@ -97,6 +101,13 @@ func (p *PGCompanyRepoAdapter) Update(ctx context.Context, c *domain.Company) (*
 
 	dbCompany, err := p.q.UpdateCompany(ctx, params)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, domain.ErrNotFound
+		}
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" { //pg:unique_violation
+			return nil, domain.ErrConflict
+		}
 		return nil, err
 	}
 
