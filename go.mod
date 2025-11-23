@@ -5,6 +5,7 @@ go 1.25.4
 require (
 	github.com/go-playground/validator/v10 v10.28.0
 	github.com/jackc/pgx/v5 v5.7.6
+	github.com/joho/godotenv v1.5.1
 	github.com/twmb/franz-go v1.20.4
 	go.uber.org/zap v1.27.1
 )

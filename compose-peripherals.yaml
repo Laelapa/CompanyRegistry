@@ -100,35 +100,6 @@ services:
     networks:
       - cr-network
 
-  cr-api:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: cr-api
-    environment:
-      ENVIRONMENT: ${ENVIRONMENT:-development}
-      DB_URL: postgres://${POSTGRES_USER:-cr}:${POSTGRES_PASSWORD:-cr_dev_password}@postgres:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-crdb}?sslmode=disable
-      KAFKA_BROKERS: ${KAFKA_BROKERS:-kafka:9092}
-      JWT_SECRET: ${JWT_SECRET:-dev_jwt_secret_change_in_production_min_32_chars}
-      JWT_LIFETIME: ${JWT_LIFETIME:-3h}
-      SERVICE_NAME: ${SERVICE_NAME:-crDev}
-      SERVER_PORT: ${SERVER_PORT:-8080}
-      STATIC_DIR: ${STATIC_DIR:-/app/static}
-      SERVER_SHUTDOWN_TIMEOUT: ${SERVER_SHUTDOWN_TIMEOUT:-5}
-    ports:
-      - "${SERVER_PORT:-8080}:${SERVER_PORT:-8080}"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      kafka:
-        condition: service_healthy
-      migrations:
-        condition: service_completed_successfully
-      kafka-init:
-        condition: service_completed_successfully
-    networks:
-      - cr-network
-
 volumes:
   postgres_data:
   kafka_data:
