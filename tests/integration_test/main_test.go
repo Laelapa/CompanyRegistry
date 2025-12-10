@@ -6,7 +6,15 @@ import (
 	"fmt"
 	"os"
 	"testing"
+	"time"
 
+	"github.com/Laelapa/CompanyRegistry/auth/tokenauthority"
+	"github.com/Laelapa/CompanyRegistry/internal/app"
+	"github.com/Laelapa/CompanyRegistry/internal/config"
+	"github.com/Laelapa/CompanyRegistry/internal/repository"
+	"github.com/Laelapa/CompanyRegistry/internal/repository/adapters"
+	"github.com/Laelapa/CompanyRegistry/internal/service"
+	"github.com/Laelapa/CompanyRegistry/logging"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pressly/goose/v3"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
@@ -64,4 +72,47 @@ func TestMain(m *testing.M) {
 		os.Exit(1)
 	}
 	os.Exit(code)
+}
+
+func setupApp(t *testing.T) *app.App {
+	t.Helper()
+
+	logger, _ := logging.NewLogger(config.LoggingConfig{LoggerSetup: "prod"})
+	tokenAuth := tokenauthority.New(
+		&config.AuthConfig{
+			JwtSecret:   "test-secret-key",
+			JwtIssuer:   "test-issuer",
+			JwtLifetime: 1 * time.Hour,
+		},
+	)
+	queries := repository.New(testDBPool)
+
+	svc := &service.Service{
+		User: service.NewUserService(
+			adapters.NewPGUserRepoAdapter(queries),
+			tokenAuth,
+			logger,
+			nil,
+			"doesn't-matter",
+		),
+		Company: service.NewCompanyService(
+			adapters.NewPGCompanyRepoAdapter(queries),
+			tokenAuth,
+			logger,
+			nil,
+			"doesn't-matter",
+		),
+	}
+	srvCfg := &config.ServerConfig{
+		Port:            "8080",
+		ShutdownTimeout: 5 * time.Second,
+	}
+
+	return app.New(
+		srvCfg,
+		logger,
+		svc,
+		tokenAuth,
+		nil,
+	)
 }
