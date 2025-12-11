@@ -15,11 +15,11 @@ import (
 	"github.com/Laelapa/CompanyRegistry/internal/repository/adapters"
 	"github.com/Laelapa/CompanyRegistry/internal/service"
 	"github.com/Laelapa/CompanyRegistry/logging"
-	"github.com/stretchr/testify/require"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"
+	"github.com/stretchr/testify/require"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 )
 
@@ -37,7 +37,7 @@ func tRun(m *testing.M) int {
 
 	// This is used for compatibility issues with specific OSes,
 	// Try to run without it first, only use if necessary
-	os.Setenv("TESTCONTAINERS_RYUK_DISABLED", "true")
+	// os.Setenv("TESTCONTAINERS_RYUK_DISABLED", "true")
 
 	// Init postgres testcontainer
 	pgTC, err := postgres.Run(
