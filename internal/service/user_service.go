@@ -86,7 +86,7 @@ func (u *UserService) Register(
 		return "", fmt.Errorf("failed to issue JWT: %w", jErr)
 	}
 
-	go u.publishEvent(context.Background(), "SIGNUP", *dbUser.ID)
+	go u.publishEvent(context.WithoutCancel(ctx), "SIGNUP", *dbUser.ID)
 	return jwt, nil
 }
 
@@ -115,6 +115,9 @@ func (u *UserService) publishEvent(ctx context.Context, eventType string, id uui
 	if u.producer == nil {
 		return
 	}
+
+	ctx, cancel := context.WithTimeout(ctx, defaultEventPublishTimeout) //TODO: Should export timeout
+	defer cancel()
 
 	eventData := map[string]any{
 		"event": eventType,

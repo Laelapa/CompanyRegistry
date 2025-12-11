@@ -71,7 +71,7 @@ func (u *CompanyService) Create(ctx context.Context, c *domain.Company) (*domain
 		return nil, err
 	}
 
-	go u.publishEvent(context.Background(), "CREATE", *createdCompany.ID)
+	go u.publishEvent(context.WithoutCancel(ctx), "CREATE", *createdCompany.ID)
 	return createdCompany, nil
 }
 
@@ -91,7 +91,7 @@ func (u *CompanyService) Update(ctx context.Context, c *domain.Company) (*domain
 		return nil, err
 	}
 
-	go u.publishEvent(context.Background(), "UPDATE", *updatedCompany.ID)
+	go u.publishEvent(context.WithoutCancel(ctx), "UPDATE", *updatedCompany.ID)
 	return updatedCompany, nil
 }
 
@@ -102,7 +102,7 @@ func (u *CompanyService) Delete(ctx context.Context, id uuid.UUID) error {
 		return err
 	}
 
-	go u.publishEvent(context.Background(), "DELETE", id)
+	go u.publishEvent(context.WithoutCancel(ctx), "DELETE", id)
 	return nil
 }
 
@@ -111,6 +111,9 @@ func (u *CompanyService) publishEvent(ctx context.Context, eventType string, id 
 	if u.producer == nil {
 		return
 	}
+
+	ctx, cancel := context.WithTimeout(ctx, defaultEventPublishTimeout) //TODO: Should export timeout to config
+	defer cancel()
 
 	eventData := map[string]any{
 		"event": eventType,
