@@ -30,7 +30,7 @@ func TestUserFlow(t *testing.T) {
 			Username: username,
 			Password: password,
 		}
-		w := sendPostRequest(app, "/api/v1/signup", reqPayload, "")
+		w := sendPostRequest(t, app, "/api/v1/signup", reqPayload, "")
 
 		require.Equal(t, http.StatusCreated, w.Code)
 
@@ -47,7 +47,7 @@ func TestUserFlow(t *testing.T) {
 			Username: username,
 			Password: password,
 		}
-		w := sendPostRequest(app, "/api/v1/signup", reqPayload, "")
+		w := sendPostRequest(t, app, "/api/v1/signup", reqPayload, "")
 
 		require.Equal(t, http.StatusConflict, w.Code)
 	})
@@ -61,7 +61,7 @@ func TestUserFlow(t *testing.T) {
 			Registered:    &reg,
 			CompanyType:   "Corporation",
 		}
-		w := sendPostRequest(app, "/api/v1/company", reqPayload, accessToken)
+		w := sendPostRequest(t, app, "/api/v1/company", reqPayload, accessToken)
 
 		require.Equal(t, http.StatusCreated, w.Code)
 
@@ -91,14 +91,15 @@ func TestUserFlow(t *testing.T) {
 			Registered:    &reg,
 			CompanyType:   "Corporation",
 		}
-		w := sendPostRequest(app, "/api/v1/company", reqPayload, accessToken)
+		w := sendPostRequest(t, app, "/api/v1/company", reqPayload, accessToken)
 
 		require.Equal(t, http.StatusConflict, w.Code)
 	})
 }
 
-func sendPostRequest(app *app.App, url string, body any, accessToken string) *httptest.ResponseRecorder {
-	reqBody, _ := json.Marshal(body)
+func sendPostRequest(t *testing.T, app *app.App, url string, body any, accessToken string) *httptest.ResponseRecorder {
+	reqBody, err := json.Marshal(body)
+	require.NoError(t, err)
 	r := httptest.NewRequest(http.MethodPost, url, bytes.NewReader(reqBody))
 	r.Header.Set("Content-Type", "application/json")
 	if accessToken != "" {

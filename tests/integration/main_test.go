@@ -61,7 +61,11 @@ func tRun(m *testing.M) int {
 		}
 	}()
 
-	conStr, _ := pgTC.ConnectionString(ctx, "sslmode=disable")
+	conStr, err := pgTC.ConnectionString(ctx, "sslmode=disable")
+	if err != nil {
+		fmt.Printf("failed to get connection string: %s\n", err)
+		return 1
+	}
 
 	// Open connection to run migrations
 	gooseCon, err := sql.Open("pgx", conStr)

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/Laelapa/CompanyRegistry/auth/tokenauthority"
 	"github.com/Laelapa/CompanyRegistry/internal/domain"
@@ -28,8 +27,6 @@ type UserService struct {
 	producer       EventProducer
 	topic          string
 }
-
-const defaultEventPublishTimeout = 5 * time.Second
 
 func NewUserService(
 	repo UserRepository,

@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"github.com/Laelapa/CompanyRegistry/auth/tokenauthority"
 	"github.com/Laelapa/CompanyRegistry/internal/domain"
@@ -28,8 +27,6 @@ type CompanyService struct {
 	producer       EventProducer
 	topic          string
 }
-
-const defaultPublishEventTimeout = 5 * time.Second
 
 func NewCompanyService(
 	repo CompanyRepository,
@@ -115,7 +112,7 @@ func (u *CompanyService) publishEvent(ctx context.Context, eventType string, id 
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, defaultPublishEventTimeout) //TODO: Should export timeout to config
+	ctx, cancel := context.WithTimeout(ctx, defaultEventPublishTimeout) //TODO: Should export timeout to config
 	defer cancel()
 
 	eventData := map[string]any{
