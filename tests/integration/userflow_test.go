@@ -8,7 +8,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Laelapa/CompanyRegistry/internal/app"
 	"github.com/Laelapa/CompanyRegistry/internal/routes/handlers"
+
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -28,12 +30,7 @@ func TestUserFlow(t *testing.T) {
 			Username: username,
 			Password: password,
 		}
-		reqBody, _ := json.Marshal(reqPayload)
-
-		r := httptest.NewRequest(http.MethodPost, "/api/v1/signup", bytes.NewReader(reqBody))
-		r.Header.Set("Content-Type", "application/json")
-		w := httptest.NewRecorder()
-		app.ServeHTTP(w, r)
+		w := sendPostRequest(app, "/api/v1/signup", reqPayload, "")
 
 		require.Equal(t, http.StatusCreated, w.Code)
 
@@ -50,12 +47,7 @@ func TestUserFlow(t *testing.T) {
 			Username: username,
 			Password: password,
 		}
-		reqBody, _ := json.Marshal(reqPayload)
-
-		r := httptest.NewRequest(http.MethodPost, "/api/v1/signup", bytes.NewReader(reqBody))
-		r.Header.Set("Content-Type", "application/json")
-		w := httptest.NewRecorder()
-		app.ServeHTTP(w, r)
+		w := sendPostRequest(app, "/api/v1/signup", reqPayload, "")
 
 		require.Equal(t, http.StatusConflict, w.Code)
 	})
@@ -69,12 +61,7 @@ func TestUserFlow(t *testing.T) {
 			Registered:    &reg,
 			CompanyType:   "Corporation",
 		}
-		reqBody, _ := json.Marshal(reqPayload)
-		r := httptest.NewRequest(http.MethodPost, "/api/v1/company", bytes.NewReader(reqBody))
-		r.Header.Set("Content-Type", "application/json")
-		r.Header.Set("Authorization", "Bearer "+accessToken)
-		w := httptest.NewRecorder()
-		app.ServeHTTP(w, r)
+		w := sendPostRequest(app, "/api/v1/company", reqPayload, accessToken)
 
 		require.Equal(t, http.StatusCreated, w.Code)
 
@@ -92,14 +79,25 @@ func TestUserFlow(t *testing.T) {
 		w := httptest.NewRecorder()
 		app.ServeHTTP(w, r)
 
-		assert.Equal(t, http.StatusOK, w.Code)
+		require.Equal(t, http.StatusOK, w.Code)
 	})
 
 	t.Run("Create duplicate Company fails", func(t *testing.T) {
-		)
+		var ec int32 = 50
+		reg := true
+		reqPayload := handlers.CreateCompanyRequest{
+			Name:          companyName,
+			EmployeeCount: &ec,
+			Registered:    &reg,
+			CompanyType:   "Corporation",
+		}
+		w := sendPostRequest(app, "/api/v1/company", reqPayload, accessToken)
+
+		require.Equal(t, http.StatusConflict, w.Code)
+	})
 }
 
-func SendPostRequest(t *testing.T, app *App, url string, body any, accessToken string) *httptest.ResponseRecorder {
+func sendPostRequest(app *app.App, url string, body any, accessToken string) *httptest.ResponseRecorder {
 	reqBody, _ := json.Marshal(body)
 	r := httptest.NewRequest(http.MethodPost, url, bytes.NewReader(reqBody))
 	r.Header.Set("Content-Type", "application/json")
