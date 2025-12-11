@@ -24,8 +24,14 @@ import (
 
 var testDBPool *pgxpool.Pool //nolint:gochecknoglobals // Used by the integration test suite
 
-//nolint:forbidigo // Allow fmt in test main
 func TestMain(m *testing.M) {
+	// Delegate to a helper function so we can use defer for cleanup
+	code := tRun(m)
+	os.Exit(code)
+}
+
+//nolint:forbidigo // Allow fmt in test setup
+func tRun(m *testing.M) int {
 	ctx := context.Background()
 
 	// This is used for compatibility issues with specific OSes,
@@ -43,8 +49,17 @@ func TestMain(m *testing.M) {
 	)
 	if err != nil {
 		fmt.Printf("failed to start container: %s\n", err)
-		os.Exit(1)
+		return 1
 	}
+
+	// Defer termination immediately so it runs even if setup fails later
+	defer func() {
+		if tcerr := pgTC.Terminate(ctx); tcerr != nil {
+			fmt.Printf("failed to terminate container: %s\n", tcerr)
+		} else {
+			fmt.Println("Testcontainer terminated successfully")
+		}
+	}()
 
 	conStr, _ := pgTC.ConnectionString(ctx, "sslmode=disable")
 
@@ -52,32 +67,25 @@ func TestMain(m *testing.M) {
 	gooseCon, err := sql.Open("pgx", conStr)
 	if err != nil {
 		fmt.Printf("failed to connect to database: %s\n", err)
-		os.Exit(1)
+		return 1
 	}
+	defer gooseCon.Close()
 
 	if gErr := goose.Up(gooseCon, "../../internal/migrations"); gErr != nil {
 		fmt.Printf("failed to run migrations: %s\n", gErr)
-		os.Exit(1)
+		return 1
 	}
-	gooseCon.Close()
 
 	// Open pgxpool for tests
 	testDBPool, err = pgxpool.New(ctx, conStr)
 	if err != nil {
 		fmt.Printf("failed to create pgxpool: %s\n", err)
-		os.Exit(1)
+		return 1
 	}
+	defer testDBPool.Close()
 
 	// Run tests
-	code := m.Run()
-
-	// Teardown
-	testDBPool.Close()
-	if err := pgTC.Terminate(ctx); err != nil {
-		fmt.Printf("failed to terminate container: %s\n", err)
-		os.Exit(1)
-	}
-	os.Exit(code)
+	return m.Run()
 }
 
 func setupApp(t *testing.T) *app.App {
