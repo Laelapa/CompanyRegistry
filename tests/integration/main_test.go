@@ -15,7 +15,9 @@ import (
 	"github.com/Laelapa/CompanyRegistry/internal/repository/adapters"
 	"github.com/Laelapa/CompanyRegistry/internal/service"
 	"github.com/Laelapa/CompanyRegistry/logging"
+
 	"github.com/jackc/pgx/v5/pgxpool"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 )
@@ -25,6 +27,10 @@ var testDBPool *pgxpool.Pool //nolint:gochecknoglobals // Used by the integratio
 //nolint:forbidigo // Allow fmt in test main
 func TestMain(m *testing.M) {
 	ctx := context.Background()
+
+	// This is used for compatibility issues with specific OSes,
+	// Try to run without it first, only use if necessary
+	os.Setenv("TESTCONTAINERS_RYUK_DISABLED", "true")
 
 	// Init postgres testcontainer
 	pgTC, err := postgres.Run(
@@ -77,6 +83,7 @@ func TestMain(m *testing.M) {
 func setupApp(t *testing.T) *app.App {
 	t.Helper()
 
+	// TODO: develop test logger
 	logger, _ := logging.NewLogger(config.LoggingConfig{LoggerSetup: "prod"})
 	tokenAuth := tokenauthority.New(
 		&config.AuthConfig{
