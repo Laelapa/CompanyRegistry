@@ -15,6 +15,7 @@ import (
 	"github.com/Laelapa/CompanyRegistry/internal/repository/adapters"
 	"github.com/Laelapa/CompanyRegistry/internal/service"
 	"github.com/Laelapa/CompanyRegistry/logging"
+	"github.com/stretchr/testify/require"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -95,8 +96,10 @@ func tRun(m *testing.M) int {
 func setupApp(t *testing.T) *app.App {
 	t.Helper()
 
-	// TODO: develop test logger
-	logger, _ := logging.NewLogger(config.LoggingConfig{LoggerSetup: "prod"})
+	// TODO: implement test logger
+	logger, err := logging.NewLogger(config.LoggingConfig{LoggerSetup: "prod"})
+	require.NoError(t, err)
+
 	tokenAuth := tokenauthority.New(
 		&config.AuthConfig{
 			JwtSecret:   "test-secret-key",
